@@ -1,7 +1,7 @@
 ---
 title: "Boulder Ozone Exploratory Analysis"
 author: "Gabriella Brinkley"
-date: "8/18/2021"
+date: "8.18.2021"
 output: html_document
 ---
 
