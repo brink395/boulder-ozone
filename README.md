@@ -1,37 +1,131 @@
-## Welcome to GitHub Pages
+---
+title: "Boulder Ozone Exploratory Analysis"
+author: "Gabriella Brinkley"
+date: "8/18/2021"
+output: html_document
+---
 
-You can use the [editor on GitHub](https://github.com/brink395/boulder-ozone/edit/main/README.md) to maintain and preview the content for your website in Markdown files.
-
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
-
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
 
-### Jekyll Themes
+```{r}
+library(stats)
+library(ggplot2)
+library(tidyverse)
+library(trend)
+```
+# Loading the data
+### Data from EPA
+### Location BR= Boulder Res SBC= South Boulder Creek
+```{r}
+ozone21<- read.csv("boulder_ozone_21.csv") #BR
+ozone20<- read.csv("boulder_ozone_20.csv") #BR
+ozone19<- read.csv("boulder_ozone_19.csv") #BR
+ozone18<- read.csv("boulder_ozone_18.csv") #BR
+ozone17<- read.csv("boulder_ozone_17.csv") #BR
+ozone16<- read.csv("boulder_ozone_16.csv") #BR
+ozone15<- read.csv("boulder_ozone_15.csv") #SBC
+ozone14<- read.csv("boulder_ozone_14.csv") #SBC
+ozone13<- read.csv("boulder_ozone_13.csv") #SBC
+ozone12<- read.csv("boulder_ozone_12.csv") #SBC
+ozone11<- read.csv("boulder_ozone_11.csv") #SBC
+ozone10<- read.csv("boulder_ozone_10.csv") #SBC
+ozone99<- read.csv("boulder_ozone_99.csv") #SBC
+view(ozone13)
+```
+# Ozone stats summary for each year
+```{r}
+## 1999
+summary(ozone99$Daily.Max.8.hour.Ozone.Concentration)
+## 2010
+summary(ozone10$Daily.Max.8.hour.Ozone.Concentration)
+## 2011
+summary(ozone11$Daily.Max.8.hour.Ozone.Concentration)
+## 2012
+summary(ozone12$Daily.Max.8.hour.Ozone.Concentration)
+## 2013
+summary(ozone13$Daily.Max.8.hour.Ozone.Concentration)
+## 2014
+summary(ozone14$Daily.Max.8.hour.Ozone.Concentration)
+## 2015
+summary(ozone15$Daily.Max.8.hour.Ozone.Concentration)
+## 2016
+summary(ozone16$Daily.Max.8.hour.Ozone.Concentration)
+## 2017
+summary(ozone17$Daily.Max.8.hour.Ozone.Concentration)
+## 2018
+summary(ozone18$Daily.Max.8.hour.Ozone.Concentration)
+## 2019
+summary(ozone19$Daily.Max.8.hour.Ozone.Concentration)
+## 2020
+summary(ozone20$Daily.Max.8.hour.Ozone.Concentration)
+## 2021
+summary(ozone21$Daily.Max.8.hour.Ozone.Concentration)
+```
+# Distribution of the data
+```{r}
+hist(ozone20$Daily.Max.8.hour.Ozone.Concentration)
+## Most years show fairly normally distributed data. 
+```
+# Find which date the max ozone value occurs at in each year
+```{r} 
+which.max(ozone99$Daily.Max.8.hour.Ozone.Concentration)
+which.max(ozone10$Daily.Max.8.hour.Ozone.Concentration)
+which.max(ozone11$Daily.Max.8.hour.Ozone.Concentration)
+which.max(ozone12$Daily.Max.8.hour.Ozone.Concentration)
+which.max(ozone13$Daily.Max.8.hour.Ozone.Concentration)
+which.max(ozone14$Daily.Max.8.hour.Ozone.Concentration)
+which.max(ozone15$Daily.Max.8.hour.Ozone.Concentration)
+which.max(ozone16$Daily.Max.8.hour.Ozone.Concentration)
+which.max(ozone17$Daily.Max.8.hour.Ozone.Concentration)
+which.max(ozone18$Daily.Max.8.hour.Ozone.Concentration)
+which.max(ozone19$Daily.Max.8.hour.Ozone.Concentration)
+which.max(ozone20$Daily.Max.8.hour.Ozone.Concentration)
+which.max(ozone21$Daily.Max.8.hour.Ozone.Concentration)
+## will compare the month of July for each year, because that is when the highest values occur.
+```
+# Ozone and AQI over time in 2020
+```{r} 
+ggplot(ozone20, aes(x= Day, y=Daily.Max.8.hour.Ozone.Concentration ))+
+  geom_smooth()+
+  labs(x="Day of the year in 2020", y="Max 8 hour Ozone (ppm)")+
+  theme_bw()
+ggplot(ozone20, aes(x= Day, y=DAILY_AQI_VALUE ))+
+  geom_smooth()+
+  labs(x="Day of the year in 2020", y="AQI")+
+  theme_bw()
+```
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/brink395/boulder-ozone/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+# Ozone and AQI correlation 
+```{r}
+cor.test(ozone20$Daily.Max.8.hour.Ozone.Concentration,ozone20$DAILY_AQI_VALUE)
+## The ozone concentration strongly correlates to AQI as expected. 
+```
 
-### Support or Contact
+# Filtering and visualizing the data
+```{r}
+all<-rbind(ozone10, ozone11, ozone12, ozone13, ozone14, ozone15, ozone16, ozone17,ozone18,ozone19,ozone20, ozone21)
+## Filtering only July data  
+all_July<-all%>%filter(all$Month=="July")
+## Ozone Concentration in July over 10 years (2010-2020)
+ggplot(all_July, aes(x=Day, y= Daily.Max.8.hour.Ozone.Concentration))+
+  geom_smooth()+
+  labs(y="Daily Max Ozone Concentration (ppm) in July", x= "Day (Julian)")+
+  theme_bw()
+```
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+# Statistical tests for Ozone in the month of July 
+```{r}
+July20<-ozone20%>%filter(ozone20$Month=="July")
+July10<-ozone10%>%filter(ozone10$Month=="July")
+July99<-ozone99%>%filter(ozone99$Month=="July")
+sens.slope(all_July$DAILY_AQI_VALUE)
+sens.slope(all_July$Daily.Max.8.hour.Ozone.Concentration)
+t.test(ozone20$Daily.Max.8.hour.Ozone.Concentration,ozone10$Daily.Max.8.hour.Ozone.Concentration) ##overall mean ozone values are not significantly different in 2010 and 2020
+t.test(July20$Daily.Max.8.hour.Ozone.Concentration,July10$Daily.Max.8.hour.Ozone.Concentration) ## mean ozone values of July 2020 and 2010 are not significantly different.
+t.test(ozone99$Daily.Max.8.hour.Ozone.Concentration,ozone20$Daily.Max.8.hour.Ozone.Concentration) ## overall mean ozone values are significantly different 
+t.test(July99$Daily.Max.8.hour.Ozone.Concentration,July20$Daily.Max.8.hour.Ozone.Concentration)
+## mean values in July are not significantly different 
+```
